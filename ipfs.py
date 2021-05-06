@@ -46,9 +46,49 @@ class Blockchain:
         for i in self.data:
             if i[1] != -2:
                 self.fat.append(i[1])
+        network = self.nodes
+        for node in network:
+            if node != sender_port:
+                response = requests.get(f'http://{sender_port}/get/fat')
+                if response.status_code == 200:
+                    requests.post(f'http://{node}/update/fat', json={
+                        'fat': response.json()['fat']
+                    })
 
-    def store_fat(self,update_fat):
+        network = self.nodes
+        counter = 0
+        for node in network:
+            if node != sender_port:
+                response = requests.post(f'http://{node}/validate/fat', json={})
+                if response.status_code == 200:
+                    counter += 1
 
+        if self. consensus(counter,sender_port) is True:
+
+
+    def consensus(self,counter,sender_port):
+        total_nodes = 0
+        network = self.nodes
+        for node in network:
+            if node != sender_port:
+                total_nodes += 1
+        if counter / total_nodes > 0.5:
+            return True
+        return False
+
+
+    def validate_fat(self):
+        self.data = filesystem.get_data()
+        check = []
+        for i in self.data:
+            if i[1] != -2:
+                check.append(i[1])
+        if check == self.fat:
+            return True
+        return False
+
+    def store_fat(self, fats):
+        self.fat = fats
 
     # create fat logs
     def new_fat_log(self, value):
@@ -132,9 +172,22 @@ def get_fat():
     }
     return jsonify(response), 200
 
+
 @app.route('/update/fat', methods=['POST'])
 def update_fat():
+    values = request.get_json()
+    required = ['fat']
+    if not all(keys in values for keys in required):
+        return 'Missing request info', 400
+    blockchain.store_fat(values['fat'])
+    response = {'message': "UPDATE DONE"}
+    return jsonify(response), 201
 
+
+@app.route('/validate/fat', methods=['POST'])
+def validate_fat():
+    blockchain.validate()
+    return jsonify(), 200
 
 
 if __name__ == '__main__':
