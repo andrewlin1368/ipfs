@@ -37,7 +37,7 @@ class Blockchain:
         for i in self.data:
             if i[1] != -2:
                 self.fat.append(i[1])
-        self.new_fat_log(value=False)
+        self.new_fat_log()
 
     def new_request(self, data, location, sender_port):
         self.data = filesystem.get_data()
@@ -63,10 +63,18 @@ class Blockchain:
                 if response.status_code == 200:
                     counter += 1
 
-        if self. consensus(counter,sender_port) is True:
+        if self.consensus(counter, sender_port) is True:
+            network = self.nodes
+            response = requests.get(f'http://{sender_port}/get/fat')
+            if response.status_code == 200:
+                for node in network:
+                    requests.post(f'http://{node}/final/fat', json={'fat': response.json()['fat']})
+                    requests.post(f'http://{node}/add/block', json={})
 
+        filesystem.edit_data(data,location)
+        print(filesystem.data)
 
-    def consensus(self,counter,sender_port):
+    def consensus(self, counter, sender_port):
         total_nodes = 0
         network = self.nodes
         for node in network:
@@ -75,7 +83,6 @@ class Blockchain:
         if counter / total_nodes > 0.5:
             return True
         return False
-
 
     def validate_fat(self):
         self.data = filesystem.get_data()
@@ -90,13 +97,15 @@ class Blockchain:
     def store_fat(self, fats):
         self.fat = fats
 
+    def final_fat(self, fats):
+        self.fat = fats
+
     # create fat logs
-    def new_fat_log(self, value):
+    def new_fat_log(self):
         if self.validate() is True:
-            if value is False:
-                last_block = self.last_block
-                previous_hash = self.hash(last_block)
-                self.new_block(previous_hash)
+            last_block = self.last_block
+            previous_hash = self.hash(last_block)
+            self.new_block(previous_hash)
 
     def new_block(self, previous_hash):
         block = {
@@ -134,6 +143,12 @@ class Blockchain:
 app = Flask(__name__)
 node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
+
+
+@app.route('/add/block', methods=['POST'])
+def add_block():
+    blockchain.new_fat_log()
+    return jsonify(), 201
 
 
 @app.route('/new/request', methods=['POST'])
@@ -187,6 +202,16 @@ def update_fat():
 @app.route('/validate/fat', methods=['POST'])
 def validate_fat():
     blockchain.validate()
+    return jsonify(), 200
+
+
+@app.route('/final/fat', methods=['POST'])
+def final_fat():
+    values = request.get_json()
+    required = ['fat']
+    if not all(keys in values for keys in required):
+        return 'Missing request info', 400
+    blockchain.final_fat(values['fat'])
     return jsonify(), 200
 
 
