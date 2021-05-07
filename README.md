@@ -31,7 +31,7 @@
 {
     "data": "Example", 
     "location": 3, 
-    "sender_port": "127.0.0.1:5000
+    "sender_port": "127.0.0.1:5000"
 }
 ```
   
