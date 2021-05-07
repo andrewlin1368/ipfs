@@ -27,9 +27,11 @@
 ## Others
 - static network with 4 nodes
 - request launch with /new/request
-```{
+```
+{
     "data": "Example", 
     "location": 3, 
     "sender_port": "127.0.0.1:5000
-    }```
+}
+```
   
