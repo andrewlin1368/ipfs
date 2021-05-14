@@ -96,7 +96,7 @@ class Blockchain:
         print('AAAAAAAAAAA')
         print(value)
         if value:
-            requests.post(f'http://{node_counter}/update', json={
+            requests.post(f'http://127.0.0.1:{node_counter}/update', json={
                 'file_name': file_name, 'address': route[1][2]
             })
 
