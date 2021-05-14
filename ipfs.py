@@ -81,7 +81,7 @@ class Blockchain:
             node_counter += 1
 
         for i in route:
-            self.fat.append([i[1], i[2]])
+            self.fat.append([i[0], i[1], i[2]])
 
         consensus_counter = 0
         network = self.nodes
@@ -93,16 +93,14 @@ class Blockchain:
                 if response.status_code == 200:
                     consensus_counter += 1
         value = self.consensus(consensus_counter, current_port)
-        print('AAAAAAAAAAA')
-        print(value)
         if value:
-            requests.post(f'http://127.0.0.1:{node_counter}/update', json={
-                'file_name': file_name, 'address': route[1][2]
+            requests.post(f'http://127.0.0.1:{node_counter}/update/data', json={
+                'data': new_data, 'address': route[1][2]
             })
 
-        network = self.nodes
-        for node in network:
-            requests.post(f'http://{node}/new/transaction', json={})
+            network = self.nodes
+            for node in network:
+                requests.post(f'http://{node}/new/transaction', json={})
 
     def new_transaction(self):
         last_block = self.last_block
@@ -139,7 +137,7 @@ class Blockchain:
         counter += 1
 
         for i in route:
-            self.fat.append([i[1], i[2]])
+            self.fat.append([i[0], i[1], i[2]])
 
         data.append(requests.get(f'http://{sender_port}/get/fat/info').json())
         if self.fat == fat:
