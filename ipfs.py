@@ -48,7 +48,7 @@ class Blockchain:
     def edit(self, file_name, previous_data, new_data, current_port):
         network = self.nodes
         for node in network:
-            response = requests.get(f'http://{node}/validate')
+            response = requests.get(f'http://{node}/validate/hash')
             if response.status_code != 200:
                 return False
 
