@@ -46,6 +46,12 @@ class Blockchain:
         self.data_info.append([data_two, next_port_two, next_address_two])
 
     def edit(self, file_name, previous_data, new_data, current_port):
+        network = self.nodes
+        for node in network:
+            response = requests.get(f'http://{node}/validate')
+            if response.status_code != 200:
+                return False
+
         data = []
         route = []
         count = 0
@@ -313,6 +319,14 @@ def get_chain():
         'length': len(blockchain.chain)
     }
     return jsonify(response), 200
+
+
+@app.route('/validate', methods=['GET'])
+def validate():
+    response = blockchain.validate()
+    if response:
+        return jsonify(), 200
+    return jsonify(), 201
 
 
 if __name__ == '__main__':
