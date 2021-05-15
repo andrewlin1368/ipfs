@@ -101,6 +101,8 @@ class Blockchain:
             network = self.nodes
             for node in network:
                 requests.post(f'http://{node}/new/transaction', json={})
+        else:
+            self.fat = []
 
     def new_transaction(self):
         last_block = self.last_block
