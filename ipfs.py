@@ -321,8 +321,8 @@ def get_chain():
     return jsonify(response), 200
 
 
-@app.route('/validate', methods=['GET'])
-def validate():
+@app.route('/validate/hash', methods=['GET'])
+def validate_hash():
     response = blockchain.validate()
     if response:
         return jsonify(), 200
