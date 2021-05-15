@@ -139,7 +139,7 @@ class Blockchain:
         for i in route:
             self.fat.append([i[0], i[1], i[2]])
 
-        data.append(requests.get(f'http://{sender_port}/get/fat/info').json())
+        fat.append(requests.get(f'http://{sender_port}/get/fat/info').json())
         if self.fat == fat:
             return True
 
